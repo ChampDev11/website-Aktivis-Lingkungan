@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aktivis Lingkungan - Website Resmi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- NAVBAR NAVIGATION -->
+    <nav class="navbar">
+        <div class="logo">☘️ Aktivis Lingkungan</div>
+        <ul class="nav-links">
+            <li><a href="#beranda">Beranda</a></li>
+            <li><a href="#tentang">Tentang Kami</a></li>
+            <li><a href="#program">Program</a></li>
+            <li><a href="#galeri-section">Galeri & Aspirasi</a></li>
+            <li><a href="https://instagram.com" target="_blank" class="instagram-link">📸 Instagram</a></li>
+        </ul>
+    </nav>
+
+    <!-- 1. HERO SECTION -->
+    <header id="beranda" class="hero">
+        <div class="hero-content">
+            <h1>Selamat Datang di Komunitas Aktivis Lingkungan</h1>
+            <p class="visi">"Mewujudkan lingkungan sekolah yang hijau, bersih, dan berkelanjutan demi masa depan generasi penerus."</p>
+        </div>
+        <div class="statistik">
+            <div class="stat-item">
+                <h3>♻️ RECYCLE</h3>
+                <p>Mari Kelola Sampah Bersama</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. TENTANG KAMI -->
+    <section id="tentang" class="section">
+        <h2>Tentang Kami</h2>
+        <p class="sub-heading">Mengenal lebih dekat gerakan perubahan lingkungan di sekolah.</p>
+        <div class="tentang-container">
+            <div class="profil">
+                <h3>Profil Organisasi</h3>
+                <p>Kami adalah wadah kreatif siswa yang peduli terhadap kelestarian ekosistem sekolah. Berdiri sejak kesadaran akan pentingnya bumi yang sehat dimulai, kami bergerak aktif dalam edukasi sanitasi, penghijauan, dan pengelolaan limbah mandiri.</p>
+            </div>
+            <div class="nilai">
+                <h3>Nilai Utama Kami</h3>
+                <ul>
+                    <li>🌱 <strong>Eko-Edukasi:</strong> Berbagi ilmu lingkungan.</li>
+                    <li>🤝 <strong>Solidaritas:</strong> Gotong royong dalam aksi nyata.</li>
+                    <li>💡 <strong>Inovasi Hijau:</strong> Mengubah sampah menjadi karya berguna.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. PROGRAM & DOKUMENTASI -->
+    <section id="program" class="section bg-light">
+        <h2>Program Kerja Kami</h2>
+        <div class="card-container">
+            <div class="card">
+                <h3>Gerakan Pungut Sampah (GPS)</h3>
+                <p class="date">Setiap Hari Jumat</p>
+                <p>Aksi menyisir area sekolah untuk memastikan lingkungan bebas dari sampah plastik.</p>
+            </div>
+            <div class="card">
+                <h3>Reboisasi Mini</h3>
+                <p class="date">10 Januari 2026</p>
+                <p>Penanaman tanaman hidroponik dan pohon peneduh di sekitar area lapangan utama.</p>
+            </div>
+            <div class="card">
+                <h3>Workshop Eco-Enzyme</h3>
+                <p class="date">Mendatang</p>
+                <p>Pelatihan pembuatan cairan serbaguna dari fermentasi kulit buah dan sisa sayuran.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. GALERI FOTO & KOTAK ASPIRASI -->
+    <section id="galeri-section" class="section">
+        <h2>Galeri Kegiatan & Aspirasi Warga Sekolah</h2>
+        <p class="sub-heading">Lihat dokumentasi aksi nyata sekaligus sampaikan aspirasi hijaumu di bawah ini.</p>
+
+        <!-- KOTAK LAYANAN AKSES MASUK ADMIN -->
+        <div id="password-box" class="auth-box">
+            <h3>🔒 Akses Pengurus (Admin)</h3>
+            <p>Masukkan kata sandi komunitas untuk membuka fitur Unggah Kegiatan.</p>
+            <input type="password" id="input-sandi" placeholder="Sandi Pengurus...">
+            <button onclick="cekSandi()">Buka Akses Admin</button>
+            <p id="pesan-error" class="error-text">Sandi salah! Akses ditolak.</p>
+        </div>
+
+        <!-- AREA UNGGAH FOTO + TEKS SEKALIGUS (TERKUNCI SANDI) -->
+        <div id="area-upload-terkunci" class="upload-box" style="display: none;">
+            <h4>➕ Unggah Dokumentasi Kegiatan Baru</h4>
+            <input type="file" id="pilih-foto" accept="image/*" style="margin-bottom: 12px; display: block; width: 100%;">
+            <input type="text" id="deskripsi-foto" placeholder="Ketik keterangan atau teks foto di sini..." style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+            <button onclick="unggahFoto()" class="btn">Simpan Dokumentasi ke Website</button>
+        </div>
+
+        <!-- TEMPAT MENAMPILKAN HASIL GABUNGAN FOTO DAN TEKS -->
+        <h3 style="margin-top: 40px; text-align: left; color: #2e7d32;">📸 Aksi Lingkungan:</h3>
+        <div id="photo-grid" class="photo-grid" style="margin-top: 15px; margin-bottom: 50px;">
+            <!-- Dokumentasi foto dan teks otomatis masuk ke sini -->
+        </div>
+
+        <hr style="border: 0; height: 1px; background: #ddd; margin: 40px 0;">
+
+        <!-- 5. KOTAK ASPIRASI -->
+        <div class="aspirasi-section">
+            <div class="aspirasi-form-box">
+                <h3>💬 Kotak Aspirasi Hijau</h3>
+                <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Sampaikan ide, kritik, atau saran penanganan lingkungan sekolah langsung melalui formulir di bawah ini:</p>
+                <input type="text" id="nama-aspirasi" placeholder="Nama Anda / Anonim" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <textarea id="isi-aspirasi" placeholder="Tulis aspirasi atau saran Anda untuk lingkungan sekolah..." rows="4" style="width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; resize: none;"></textarea>
+                <button onclick="kirimAspirasi()" class="btn" style="width: 100%;">Kirim Aspirasi</button>
+            </div>
+
+            <!-- MESSAGES RECEIVED -->
+            <div class="aspirasi-display-box">
+                <h3>📥 Masukan & Aspirasi Terkini:</h3>
+                <div id="wadah-aspirasi-masuk" class="wadah-aspirasi">
+                    <!-- Lembar kertas pesan aspirasi otomatis bertumpuk di sini -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER DI PALING BAWAH -->
+    <footer style="background: #1b5e20; color: white; padding: 25px; text-align: center; font-size: 0.9rem;">
+        <p style="margin-bottom: 8px;">© 2026 Aktivis Lingkungan Sekolah. Bergerak Bersama untuk Bumi.</p>
+        <p>Hubungi Kami di Instagram: <a href="https://instagram.com" target="_blank" style="color: #a5d6a7; text-decoration: none; font-weight: bold;">@wirareswara.id</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
