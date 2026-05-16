@@ -4,7 +4,7 @@ let isAdminActive = false;
 // KONFIGURASI KONEKSI DATABASE CLOUD ONLINE NYATA (SANGAT AKURAT)
 const SUPABASE_URL = "https://supabase.co";
 const SUPABASE_KEY = "sb_publishable_ij-0EhiuMECCnr0znjWSgg_AyahmFKF";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener("DOMContentLoaded", function() {
     tampilkanFotoDariDatabase();
