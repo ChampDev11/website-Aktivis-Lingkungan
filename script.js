@@ -1,9 +1,14 @@
 const SANDI_RAHASIA = "smanggesjuara";
 let isAdminActive = false; 
 
+// KONFIGURASI KONEKSI DATABASE CLOUD ONLINE NYATA (SANGAT AKURAT)
+const SUPABASE_URL = "https://supabase.co";
+const SUPABASE_KEY = "sb_publishable_ij-0EhiuMECCnr0znjWSgg_AyahmFKF";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 document.addEventListener("DOMContentLoaded", function() {
-    tampilkanFotoDariWadah();
-    tampilkanAspirasiDariWadah();
+    tampilkanFotoDariDatabase();
+    tampilkanAspirasiDariDatabase();
 });
 
 function cekSandi() {
@@ -16,14 +21,14 @@ function cekSandi() {
         isAdminActive = true; 
         boxSandi.style.display = "none";
         tombolUpload.style.display = "block";
-        tampilkanFotoDariWadah();
-        tampilkanAspirasiDariWadah();
+        tampilkanFotoDariDatabase();
+        tampilkanAspirasiDariDatabase();
     } else {
         pesanError.style.display = "block";
     }
 }
 
-// 📸 FITUR UNGGAH DENGAN KOMPRESOR OTOMATIS LAYAR HP
+// 📸 KONEKSI ONLINE: UNGGAH FOTO & TEKS KE DATABASE CLOUD
 function unggahFoto() {
     const fileInput = document.getElementById("pilih-foto");
     const teksInput = document.getElementById("deskripsi-foto").value;
@@ -40,51 +45,50 @@ function unggahFoto() {
     const file = fileInput.files[0];
     const reader = new FileReader();
 
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         const img = new Image();
-        img.onload = function() {
-            // SISTEM KOMPRESI: Paksa foto mengecil secara rahasia agar muat di memori HP
+        img.onload = async function() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
-            // Set maksimal resolusi lebar gambar di 600 pixel (Sangat ringan untuk HP)
-            const max_width = 600;
+            const max_width = 500; 
             const scale = max_width / img.width;
             canvas.width = max_width;
             canvas.height = img.height * scale;
 
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Konversi hasil kompresi menjadi data teks ringan
-            const gambarRinganBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            const gambarRinganBase64 = canvas.toDataURL('image/jpeg', 0.6);
 
-            let wadahFoto = JSON.parse(localStorage.getItem("wadah_foto_v2")) || [];
-            const itemBaru = {
-                id: Date.now(),
-                foto: gambarRinganBase64,
-                deskripsi: teksInput
-            };
-            
-            wadahFoto.push(itemBaru);
-            localStorage.setItem("wadah_foto_v2", JSON.stringify(wadahFoto));
-            
-            alert("Dokumentasi kegiatan berhasil dipublikasikan ke galeri!");
-            fileInput.value = ""; 
-            document.getElementById("deskripsi-foto").value = "";
-            tampilkanFotoDariWadah();
+            // MEMASUKKAN DATA SECARA REALTIME KE INTERNET
+            const { error } = await supabase
+                .from('wadah_foto_v2')
+                .insert([{ foto: gambarRinganBase64, deskripsi: teksInput }]);
+
+            if (error) {
+                alert("Gagal mengirim ke database cloud: " + error.message);
+            } else {
+                alert("Dokumentasi kegiatan berhasil tersimpan secara online untuk semua perangkat!");
+                fileInput.value = ""; 
+                document.getElementById("deskripsi-foto").value = "";
+                tampilkanFotoDariDatabase();
+            }
         };
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 }
 
-function tampilkanFotoDariWadah() {
+async function tampilkanFotoDariDatabase() {
     const gridFoto = document.getElementById("photo-grid");
     let kontenHTML = "";
-    const fotoTersimpan = JSON.parse(localStorage.getItem("wadah_foto_v2")) || [];
-    
-    if(fotoTersimpan.length === 0) {
-        kontenHTML = "<p style='color:#777; font-style:italic;'>Belum ada kiriman aksi lingkungan. Pengurus dapat memasukkan dokumentasi pertama di atas.</p>";
+
+    // MENGAMBIL DATA GLOBAL DARI SERVER CLOUD
+    const { data: fotoTersimpan, error } = await supabase
+        .from('wadah_foto_v2')
+        .select('*')
+        .order('id', { ascending: true });
+
+    if(!fotoTersimpan || fotoTersimpan.length === 0) {
+        kontenHTML = "<p style='color:#777; font-style:italic;'>Belum ada kiriman aksi lingkungan di database cloud.</p>";
     } else {
         fotoTersimpan.forEach((item) => {
             kontenHTML += `
@@ -102,50 +106,50 @@ function tampilkanFotoDariWadah() {
     gridFoto.innerHTML = kontenHTML;
 }
 
-function hapusFoto(idTarget) {
-    if(confirm("Apakah Anda yakin ingin menghapus dokumentasi kegiatan ini untuk menyaring unsur SARA/pelanggaran?")) {
-        let wadahFoto = JSON.parse(localStorage.getItem("wadah_foto_v2")) || [];
-        wadahFoto = wadahFoto.filter(item => item.id !== idTarget);
-        localStorage.setItem("wadah_foto_v2", JSON.stringify(wadahFoto));
-        tampilkanFotoDariWadah();
+async function hapusFoto(idTarget) {
+    if(confirm("Apakah Anda yakin ingin menghapus dokumentasi ini dari server database cloud?")) {
+        const { error } = await supabase.from('wadah_foto_v2').delete().eq('id', idTarget);
+        if(!error) tampilkanFotoDariDatabase();
     }
 }
 
-function kirimAspirasi() {
+// 💬 KONEKSI ONLINE: KOTAK ASPIRASI SINKRONISASI GLOBAL
+async function kirimAspirasi() {
     const namaInput = document.getElementById("nama-aspirasi").value.trim() || "Anonim";
     const isiInput = document.getElementById("isi-aspirasi").value.trim();
 
     if(isiInput === "") {
-        alert("Kotak aspirasi tidak boleh kosong! Tuliskan masukan Anda.");
+        alert("Kotak aspirasi tidak boleh kosong!");
         return;
     }
 
-    let wadahAspirasi = JSON.parse(localStorage.getItem("wadah_aspirasi_v2")) || [];
     const waktuSekarang = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 
-    const aspirasiBaru = {
-        id: Date.now(),
-        nama: namaInput,
-        pesan: isiInput,
-        waktu: waktuSekarang
-    };
+    const { error } = await supabase
+        .from('wadah_aspirasi_v2')
+        .insert([{ nama: namaInput, pesan: isiInput, waktu: waktuSekarang }]);
 
-    wadahAspirasi.unshift(aspirasiBaru); 
-    localStorage.setItem("wadah_aspirasi_v2", JSON.stringify(wadahAspirasi));
-
-    alert("Terima kasih! Aspirasi Anda telah berhasil terkirim dan ditayangkan secara langsung.");
-    document.getElementById("nama-aspirasi").value = "";
-    document.getElementById("isi-aspirasi").value = "";
-    tampilkanAspirasiDariWadah();
+    if (error) {
+        alert("Aspirasi gagal terkirim secara online: " + error.message);
+    } else {
+        alert("Terima kasih! Aspirasi Anda tersimpan secara global di cloud.");
+        document.getElementById("nama-aspirasi").value = "";
+        document.getElementById("isi-aspirasi").value = "";
+        tampilkanAspirasiDariDatabase();
+    }
 }
 
-function tampilkanAspirasiDariWadah() {
+async function tampilkanAspirasiDariDatabase() {
     const wadahPesan = document.getElementById("wadah-aspirasi-masuk");
     let kontenHTML = "";
-    const aspirasiTersimpan = JSON.parse(localStorage.getItem("wadah_aspirasi_v2")) || [];
 
-    if(aspirasiTersimpan.length === 0) {
-        kontenHTML = "<p style='color:#777; font-style:italic; padding: 10px;'>Belum ada aspirasi masuk. Jadilah warga sekolah pertama yang memberi masukan!</p>";
+    const { data: aspirasiTersimpan, error } = await supabase
+        .from('wadah_aspirasi_v2')
+        .select('*')
+        .order('id', { ascending: false });
+
+    if(!aspirasiTersimpan || aspirasiTersimpan.length === 0) {
+        kontenHTML = "<p style='color:#777; font-style:italic; padding: 10px;'>Belum ada aspirasi masuk di server cloud.</p>";
     } else {
         aspirasiTersimpan.forEach((item) => {
             kontenHTML += `
@@ -161,11 +165,9 @@ function tampilkanAspirasiDariWadah() {
     wadahPesan.innerHTML = kontenHTML;
 }
 
-function hapusAspirasi(idTarget) {
-    if(confirm("Apakah Anda yakin ingin menghapus teks aspirasi warga sekolah ini karena mengandung unsur SARA/negatif?")) {
-        let wadahAspirasi = JSON.parse(localStorage.getItem("wadah_aspirasi_v2")) || [];
-        wadahAspirasi = wadahAspirasi.filter(item => item.id !== idTarget);
-        localStorage.setItem("wadah_aspirasi_v2", JSON.stringify(wadahAspirasi));
-        tampilkanAspirasiDariWadah();
+async function hapusAspirasi(idTarget) {
+    if(confirm("Apakah Anda yakin ingin menghapus teks aspirasi ini dari server cloud?")) {
+        const { error } = await supabase.from('wadah_aspirasi_v2').delete().eq('id', idTarget);
+        if(!error) tampilkanAspirasiDariDatabase();
     }
 }

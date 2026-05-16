@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aktivis Lingkungan - Website Resmi</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Memasang Pustaka Konektor Database Cloud Supabase -->
+    <script src="https://jsdelivr.net"></script>
 </head>
 <body>
 
@@ -101,7 +103,7 @@
         <!-- TEMPAT MENAMPILKAN HASIL GABUNGAN FOTO DAN TEKS -->
         <h3 style="margin-top: 40px; text-align: left; color: #2e7d32;">📸 Aksi Lingkungan:</h3>
         <div id="photo-grid" class="photo-grid" style="margin-top: 15px; margin-bottom: 50px;">
-            <!-- Dokumentasi foto dan teks otomatis masuk ke sini -->
+            <!-- Dokumentasi foto terhubung ke cloud database -->
         </div>
 
         <hr style="border: 0; height: 1px; background: #ddd; margin: 40px 0;">
@@ -116,11 +118,11 @@
                 <button onclick="kirimAspirasi()" class="btn" style="width: 100%;">Kirim Aspirasi</button>
             </div>
 
-            <!-- MESSAGES RECEIVED -->
+            <!-- ASPIRASI RECEIVED FROM CLOUD -->
             <div class="aspirasi-display-box">
                 <h3>📥 Masukan & Aspirasi Terkini:</h3>
                 <div id="wadah-aspirasi-masuk" class="wadah-aspirasi">
-                    <!-- Lembar kertas pesan aspirasi otomatis bertumpuk di sini -->
+                    <!-- Lembar kertas pesan aspirasi masuk ke sini -->
                 </div>
             </div>
         </div>
