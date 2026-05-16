@@ -16,7 +16,6 @@ function cekSandi() {
         isAdminActive = true; 
         boxSandi.style.display = "none";
         tombolUpload.style.display = "block";
-        
         tampilkanFotoDariWadah();
         tampilkanAspirasiDariWadah();
     } else {
@@ -24,6 +23,7 @@ function cekSandi() {
     }
 }
 
+// 📸 FITUR UNGGAH DENGAN KOMPRESOR OTOMATIS LAYAR HP
 function unggahFoto() {
     const fileInput = document.getElementById("pilih-foto");
     const teksInput = document.getElementById("deskripsi-foto").value;
@@ -37,28 +37,44 @@ function unggahFoto() {
         return;
     }
 
-    const file = fileInput.files;
+    const file = fileInput.files[0];
     const reader = new FileReader();
 
     reader.onload = function(e) {
-        const gambarBase64 = e.target.result;
-        let wadahFoto = JSON.parse(localStorage.getItem("wadah_foto_v2")) || [];
-        
-        const itemBaru = {
-            id: Date.now(),
-            foto: gambarBase64,
-            deskripsi: teksInput
-        };
-        
-        wadahFoto.push(itemBaru);
-        localStorage.setItem("wadah_foto_v2", JSON.stringify(wadahFoto));
-        
-        alert("Dokumentasi kegiatan berhasil dipublikasikan ke galeri!");
-        fileInput.value = ""; 
-        document.getElementById("deskripsi-foto").value = "";
-        tampilkanFotoDariWadah(); 
-    };
+        const img = new Image();
+        img.onload = function() {
+            // SISTEM KOMPRESI: Paksa foto mengecil secara rahasia agar muat di memori HP
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set maksimal resolusi lebar gambar di 600 pixel (Sangat ringan untuk HP)
+            const max_width = 600;
+            const scale = max_width / img.width;
+            canvas.width = max_width;
+            canvas.height = img.height * scale;
 
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            // Konversi hasil kompresi menjadi data teks ringan
+            const gambarRinganBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+            let wadahFoto = JSON.parse(localStorage.getItem("wadah_foto_v2")) || [];
+            const itemBaru = {
+                id: Date.now(),
+                foto: gambarRinganBase64,
+                deskripsi: teksInput
+            };
+            
+            wadahFoto.push(itemBaru);
+            localStorage.setItem("wadah_foto_v2", JSON.stringify(wadahFoto));
+            
+            alert("Dokumentasi kegiatan berhasil dipublikasikan ke galeri!");
+            fileInput.value = ""; 
+            document.getElementById("deskripsi-foto").value = "";
+            tampilkanFotoDariWadah();
+        };
+        img.src = e.target.result;
+    };
     reader.readAsDataURL(file);
 }
 
@@ -78,7 +94,7 @@ function tampilkanFotoDariWadah() {
                         <h4 style="color:#2e7d32; margin-bottom:5px;">Aksi Lingkungan</h4>
                         <p>${item.deskripsi}</p>
                     </div>
-                    ${isAdminActive ? `<button onclick="hapusFoto(${item.id})" class="btn-hapus" style="margin-top:10px;">🗑️ Hapus Postingan</button>` : ''}
+                    ${isAdminActive ? `<button onclick="hapusFoto(${item.id})" class="btn-hapus">🗑️ Hapus Postingan</button>` : ''}
                 </div>
             `;
         });
@@ -137,7 +153,7 @@ function tampilkanAspirasiDariWadah() {
                     <h5>👤 ${item.nama}</h5>
                     <p>${item.pesan}</p>
                     <span>📅 ${item.waktu} WIB</span>
-                    ${isAdminActive ? `<button onclick="hapusAspirasi(${item.id})" class="btn-hapus" style="margin-top:12px; width:auto; padding:5px 10px;">🗑️ Hapus Aspirasi SARA</button>` : ''}
+                    ${isAdminActive ? `<button onclick="hapusAspirasi(${item.id})" class="btn-hapus" style="width:auto; padding:5px 10px;">🗑️ Hapus Aspirasi SARA</button>` : ''}
                 </div>
             `;
         });
@@ -145,7 +161,6 @@ function tampilkanAspirasiDariWadah() {
     wadahPesan.innerHTML = kontenHTML;
 }
 
-// Menghapus data aspirasi bermuatan negatif
 function hapusAspirasi(idTarget) {
     if(confirm("Apakah Anda yakin ingin menghapus teks aspirasi warga sekolah ini karena mengandung unsur SARA/negatif?")) {
         let wadahAspirasi = JSON.parse(localStorage.getItem("wadah_aspirasi_v2")) || [];
